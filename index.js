@@ -6,9 +6,7 @@ const app = express();
 
 // ✅ Allow CORS from your Netlify site
 const allowedOrigin = 'https://genuine-melba-08fe31.netlify.app';
-app.use(cors({
-  origin: allowedOrigin
-}));
+app.use(cors({ origin: allowedOrigin }));
 
 app.use(express.json());
 
@@ -20,9 +18,14 @@ app.post('/fetch-chords', async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'] // ✅ Required for Render
+    });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
+
     const raw = await page.evaluate(() => {
       const container = document.querySelector('pre');
       return container ? container.innerText : '';
