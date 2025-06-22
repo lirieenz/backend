@@ -3,7 +3,13 @@ import cors from 'cors';
 import puppeteer from 'puppeteer';
 
 const app = express();
-app.use(cors());
+
+// ✅ Allow CORS from your Netlify site
+const allowedOrigin = 'https://genuine-melba-08fe31.netlify.app';
+app.use(cors({
+  origin: allowedOrigin
+}));
+
 app.use(express.json());
 
 app.post('/fetch-chords', async (req, res) => {
@@ -22,14 +28,6 @@ app.post('/fetch-chords', async (req, res) => {
       return container ? container.innerText : '';
     });
 
-
-    console.log("=== RAW CHORDS SAMPLE ===");
-    console.log(raw.slice(0, 300));
-
-
-    console.log("Fetched raw chords:", raw.slice(0, 300));
-
-
     await browser.close();
 
     if (!raw.trim()) {
@@ -38,10 +36,9 @@ app.post('/fetch-chords', async (req, res) => {
 
     res.json({ raw });
   } catch (err) {
-  console.error('Fetch failed:', err);
-  res.status(500).json({ error: 'Failed to fetch chords', detail: err.message });
-}
-
+    console.error('Fetch failed:', err);
+    res.status(500).json({ error: 'Failed to fetch chords', detail: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
